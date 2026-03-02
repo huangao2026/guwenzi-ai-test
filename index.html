@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>古文字AI破译</title>
+  <style>
+    body{max-width:600px;margin:20px auto;padding:20px;font-family:Arial}
+    .upload{margin:20px 0}
+    img{max-width:100%;margin:10px 0}
+    .result{padding:15px;background:#f5f5f5;border-radius:8px}
+    button{padding:10px 16px;background:#1a73e8;color:white;border:none;border-radius:6px;cursor:pointer}
+  </style>
+</head>
+<body>
+  <h1>古文字AI破译系统</h1>
+
+  <div class="upload">
+    <input type="file" id="fileInput" accept="image/*">
+    <button onclick="analyze()">开始AI分析</button>
+  </div>
+
+  <img id="preview" style="display:none">
+  <div id="result" class="result"></div>
+
+  <script>
+    let file = null
+    const fileInput = document.getElementById('fileInput')
+    const preview = document.getElementById('preview')
+    const result = document.getElementById('result')
+
+    fileInput.onchange = evt => {
+      file = evt.target.files[0]
+      preview.src = URL.createObjectURL(file)
+      preview.style.display = 'block'
+    }
+
+    async function analyze() {
+      if (!file) return alert('请选择图片')
+      result.innerText = 'AI分析中...'
+
+      const reader = new FileReader()
+      reader.onload = async e => {
+        const base64 = e.target.result.split(',')[1]
+        try {
+          const res = await fetch('/api/decipher', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imageBase64: base64, imageType: file.type })
+          })
+          const data = await res.json()
+          result.innerText = JSON.stringify(data, null, 2)
+        } catch (err) {
+          result.innerText = '出错：' + err.message
+        }
+      }
+      reader.readAsDataURL(file)
+    }
+  </script>
+</body>
+</html>
