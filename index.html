@@ -42,7 +42,7 @@
       reader.onload = async e => {
         const base64 = e.target.result.split(',')[1]
         try {
-          const res = await fetch('/api/decipher', {
+          const res = await fetch('/API/decipher', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ imageBase64: base64, imageType: file.type })
